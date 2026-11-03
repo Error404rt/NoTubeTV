@@ -28,8 +28,10 @@ jobs:
 
       - name: Install Android SDK platform
         run: |
-          yes | sdkmanager --licenses >/dev/null || true
-          sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+          SDKMANAGER="$(find "${ANDROID_HOME:-$ANDROID_SDK_ROOT}" -type f -name sdkmanager -perm -111 | head -1)"
+          test -n "$SDKMANAGER"
+          yes | "$SDKMANAGER" --licenses >/dev/null || true
+          "$SDKMANAGER" "platform-tools" "platforms;android-35" "build-tools;35.0.0"
 
       - name: Build APK
         run: bash ./gradlew assembleDebug ${{ matrix.gradle_property }}
