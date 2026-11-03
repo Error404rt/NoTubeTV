@@ -1,0 +1,45 @@
+name: Build APK
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build ${{ matrix.icon }} icon APK
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - icon: original
+            gradle_property: ""
+          - icon: standard
+            gradle_property: "-PappIcon=standard"
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android SDK platform
+        run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
+
+      - name: Build APK
+        run: bash ./gradlew assembleDebug ${{ matrix.gradle_property }}
+
+      - name: Rename APK
+        run: cp app/build/outputs/apk/debug/app-debug.apk "NoTubeTV-${{ matrix.icon }}-debug.apk"
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: NoTubeTV-${{ matrix.icon }}-debug
+          path: NoTubeTV-${{ matrix.icon }}-debug.apk
