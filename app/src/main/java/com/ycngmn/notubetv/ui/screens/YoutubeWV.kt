@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -41,6 +43,7 @@ fun YoutubeWV(youtubeVM: YoutubeVM = viewModel()) {
 
     val loadingState = state.loadingState
     val exitTrigger = remember { mutableStateOf(false) }
+    var scriptInjected by remember { mutableStateOf(false) }
 
     // Translate native back-presses to 'escape' button press
     BackHandler {
@@ -57,8 +60,16 @@ fun YoutubeWV(youtubeVM: YoutubeVM = viewModel()) {
         }
     }
 
-    if (loadingState == LoadingState.Finished && jsScript != null)
-        navigator.evaluateJavaScript(jsScript)
+    // Inject the current userscript only after the document is ready. Re-inject after a full reload,
+    // but avoid evaluating it on every Compose recomposition.
+    LaunchedEffect(loadingState, jsScript) {
+        if (loadingState != LoadingState.Finished) {
+            scriptInjected = false
+        } else if (jsScript != null && !scriptInjected) {
+            navigator.evaluateJavaScript(jsScript)
+            scriptInjected = true
+        }
+    }
     // If any update found, show the dialog.
     if (updateData != null) UpdateDialog(updateData, navigator)
     // If exit button is pressed, 'finish the activity' aka 'exit the app'.
