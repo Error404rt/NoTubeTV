@@ -8,7 +8,14 @@ android {
     namespace = "com.ycngmn.notubetv"
     compileSdk = 35
 
+    val appIcon = if (project.findProperty("appIcon") == "standard") {
+        "@mipmap/ic_launcher_standard"
+    } else {
+        "@mipmap/ic_launcher_notubetv"
+    }
+
     defaultConfig {
+        manifestPlaceholders["appIcon"] = appIcon
         applicationId = "com.ycngmn.notubetv"
         minSdk = 24
         targetSdk = 35

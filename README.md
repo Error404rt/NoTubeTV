@@ -27,3 +27,13 @@ For developers, please follow these guidelines:
 1.  Fork the repository.
 2.  Create a new branch for your feature or bug fix.
 3.  Submit a pull request explaining your changes.
+
+## Branding and icon builds
+
+The default build keeps the original NoTubeTV launcher icon. To build with the standard YouTube-style icon instead, use:
+
+```bash
+./gradlew assembleRelease -PappIcon=standard
+```
+
+Any other value, or no value, selects the original NoTubeTV icon. The active userscript is fetched from this fork, so future fixes can be published without depending on the archived upstream repository.
